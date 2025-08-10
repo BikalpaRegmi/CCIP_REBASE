@@ -11,7 +11,7 @@ contract RebaseTokenPool is TokenPool{
  * 
  * @param _token The address of the token RBT.
  * @param _allowLists  List of allowed tokens.
- * @param _rnmProxy chainlink security contract address
+ * @param _rmnProxy chainlink security contract address
  * @param _router router that is to be deployed on both source and destination chain.
  */
 constructor(IERC20 _token, address[] memory _allowLists, address _rmnProxy, address _router) 

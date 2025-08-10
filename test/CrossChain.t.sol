@@ -25,39 +25,51 @@ Register.NetworkDetails sepoliaNetworkDetails ;
 Register.NetworkDetails arbSepoliaNetworkDetails ; //This registers is like the mock contract for testing crosschain transfer
 
 Vault vault ;
+
 function setUp() external {
+address[] memory allowList= new address[](0);
+
+//1. Setup the sepolia and arbs forks.
 sepoliaFork = vm.createSelectFork("sepolia-eth") ; //createSelectFork for making sepoliaFork as default.
 arbSepoliaFork = vm.createFork("arb-sepolia") ;
 
 ccipLocalSimulatorFork = new CCIPLocalSimulatorFork() ;
 vm.makePersistent(address(ccipLocalSimulatorFork)) ;
 
-//1. Deploy and configure on sepolia.
+//2. Deploy and configure on source Chain:  sepolia.
 sepoliaNetworkDetails = ccipLocalSimulatorFork.getNetworkDetails(block.chainid) ;
 vm.startPrank(owner);
 sepoliaToken= new RebaseToken();
+//deploy the vault and set rewardBalance for the vault
 vault = new Vault(IRebaseToken(address(sepoliaToken)));
-sepoliaPool = new RebaseTokenPool(IERC20(sepoliaToken), address[](0), sepoliaNetworkDetails.rmnProxyAddress, sepoliaNetworkDetails.routerAddress) ;
-sepoliaToken.grantMintAndBurnRole(vault);
-sepoliaToken.grantMintAndBurnRole(sepoliaPool);
+vm.deal(address(vault), 1e18);
+//deploy the sepolia pool 
+sepoliaPool = new RebaseTokenPool(IERC20(address(sepoliaToken)), allowList, sepoliaNetworkDetails.rmnProxyAddress, sepoliaNetworkDetails.routerAddress) ;
+sepoliaToken.grantMintAndBurnRole(address(vault));
+sepoliaToken.grantMintAndBurnRole(address(sepoliaPool));
+//claim role in sepolia
 RegistryModuleOwnerCustom(sepoliaNetworkDetails.registryModuleOwnerCustomAddress).registerAdminViaOwner(address(sepoliaToken)) ;
+//accept role in sepolia
 TokenAdminRegistry(sepoliaNetworkDetails.tokenAdminRegistryAddress).acceptAdminRole(address(sepoliaToken));
+//link token to pool in the token admin registry in sepolia
 TokenAdminRegistry(sepoliaNetworkDetails.tokenAdminRegistryAddress).setPool(address(sepoliaToken),address(sepoliaPool));
 vm.stopPrank();
 
 
-//2. Deploy and configure on arb-sepolia.
+//3. Deploy and configure on destination chain: arb-sepolia.
 vm.selectFork(arbSepoliaFork);
 arbSepoliaNetworkDetails = ccipLocalSimulatorFork.getNetworkDetails(block.chainid) ;
 vm.startPrank(owner);
+//deploy the token and tokenpool in sepolia
 arbSepoliaToken = new RebaseToken();
-arbSepoliaPool = new RebaseTokenPool(IERC20(arbSepoliaPool), address[](0), arbSepoliaNetworkDetails.rmnProxyAddress, arbSepoliaNetworkDetails.routerAddress) ;
-arbSepoliaToken.grantMintAndBurnRole(arbSepoliaPool);
-arbSepoliaToken.grantMintAndBurnRole(vault);
+arbSepoliaPool = new RebaseTokenPool(IERC20(address(arbSepoliaPool)), allowList, arbSepoliaNetworkDetails.rmnProxyAddress, arbSepoliaNetworkDetails.routerAddress) ;
+arbSepoliaToken.grantMintAndBurnRole(address(arbSepoliaPool));
+//claim role in arbitrum
 RegistryModuleOwnerCustom(arbSepoliaNetworkDetails.registryModuleOwnerCustomAddress).registerAdminViaOwner(address(arbSepoliaToken)) ;
+//accept role in arbitrum
 TokenAdminRegistry(arbSepoliaNetworkDetails.tokenAdminRegistryAddress).acceptAdminRole(address(arbSepoliaToken));
+//link token to pool in the token admin registry in sepolia
 TokenAdminRegistry(arbSepoliaNetworkDetails.tokenAdminRegistryAddress).setPool(address(arbSepoliaToken),address(arbSepoliaPool));
 vm.stopPrank();
-
 }
 }
