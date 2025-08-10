@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity 0.8.20 ;
+pragma solidity ^0.8.20 ;
 
 import {ERC20} from "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import {Ownable} from "@openzeppelin/contracts/access/Ownable.sol";
@@ -47,10 +47,11 @@ function grantMintAndBurnRole(address _accnt) external onlyOwner{
  * @notice mints the user RBT.
  * @param _to address whome we are minting
  * @param _amnt amount how much we are minting
+ * @param _userInterestRate setting userInterest as the owner decides in the vault but on bridge by sending via poolData
  */
- function mint(address _to , uint256 _amnt) external onlyRole(MINT_AND_BURN_ROLE){
+ function mint(address _to , uint256 _amnt, uint256 _userInterestRate) external onlyRole(MINT_AND_BURN_ROLE){
     _mintAccuredInterest(_to);
-    s_userInterestRates[_to] = s_intrestRate ;
+    s_userInterestRates[_to] = _userInterestRate ;
     _mint(_to , _amnt) ;
 
  }

@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: SEE LICENSE IN LICENSE
-pragma solidity 0.8.20 ;
+pragma solidity ^0.8.20 ;
 
 import {Test} from "forge-std/Test.sol" ;
 import {RebaseToken} from "../src/RebaseToken.sol" ;
@@ -30,7 +30,7 @@ function test_GrantMintRoleAndBurn(uint256 _amt) external{
     rebaseToken.grantMintAndBurnRole(address(alice)) ;
     
     vm.prank(alice);
-    rebaseToken.mint(bob , _amt) ;
+    rebaseToken.mint(bob , _amt, rebaseToken.getUserInterestRates(alice)) ;
 
     assertEq(rebaseToken.balanceOf(bob) , _amt);
 
@@ -179,7 +179,7 @@ function test_getPrincipleAmt(uint256 _amt) external{
  rebaseToken.grantMintAndBurnRole(address(alice)) ;
 
     vm.startPrank(alice) ;
-    rebaseToken.mint(address(alice) , _amt) ;
+    rebaseToken.mint(address(alice) , _amt, rebaseToken.getUserInterestRates(alice)) ;
     vm.stopPrank();
 
     vm.warp(block.timestamp+5 days);
