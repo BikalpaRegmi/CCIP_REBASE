@@ -1,6 +1,7 @@
 # Compiler files
 cache/
 out/
+foundry.toml
 
 # Ignores development broadcast logs
 !/broadcast
