@@ -21,7 +21,7 @@ event Redeem(address user , uint256 value);
  * @notice redeem RBT and give Ethers.
  */
     function deposit() external payable{
-        uint256 interestRate = i_rebaseToken.getInterestRate();
+        uint256 interestRate = i_rebaseToken.getInterestRates();
         i_rebaseToken.mint(msg.sender , msg.value , interestRate) ;
         emit Deposit(msg.sender , msg.value) ;
     }

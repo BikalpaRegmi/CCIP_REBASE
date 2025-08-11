@@ -30,7 +30,7 @@ function lockOrBurn(Pool.LockOrBurnInV1 calldata lockOrBurnIn) external returns(
     address originalSender = lockOrBurnIn.originalSender  ;
 
     //Fetch the user current InterestRate from the rebaseToken
-    uint256 userInterestRate = IRebaseToken(address(i_token)).getUserInterestRate(originalSender) ;
+    uint256 userInterestRate = IRebaseToken(address(i_token)).getUserInterestRates(originalSender) ;
     IRebaseToken(address(i_token)).burn(address(this) , lockOrBurnIn.amount) ;
 
     //Prepare output data for CCIP
